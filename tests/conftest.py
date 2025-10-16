@@ -10,10 +10,12 @@ load_dotenv()
 @pytest.fixture(scope="session")
 def kmd_institution_manager() -> KMDInstitutionClientManager:
     idp = os.getenv("IDP") or ""
+    username = os.getenv("USERNAME") or ""
+    password = os.getenv("PASSWORD") or ""
     
     assert idp
 
-    manager = KMDInstitutionClientManager(idp=idp)
+    manager = KMDInstitutionClientManager(idp, username, password)
     assert manager._client.cookies  # Check the actual cookies property
     return manager
 

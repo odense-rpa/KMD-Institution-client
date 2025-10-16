@@ -17,13 +17,20 @@ class KMDInstitutionClient:
     def cookies(self, value: dict[str, str]) -> None:
         """Set the current active cookies."""
         self._cookies = value
+        # Clear existing cookies and set new ones in bulk
+        self._client.cookies.clear()
+        self._client.cookies.update(value)
 
     def __init__(
             self, 
-            idp: str
+            idp: str,
+            username: str,
+            password: str
             ) -> None:
 
         self.logger = logging.getLogger(__name__)
+        logging.getLogger("httpx").setLevel(logging.WARNING)
+        logging.getLogger("httpcore").setLevel(logging.WARNING)
 
         # Create response logging hook
         response_hook = create_response_logging_hook(logger=self.logger)
@@ -32,6 +39,8 @@ class KMDInstitutionClient:
         self._base_url = "https://institution.kmd.dk/"
         self._timeout = 30.0  # seconds
         self._idp = idp
+        self._username = username
+        self._password = password
         self._client = httpx.Client(
             timeout=self._timeout,
             event_hooks=hooks,
@@ -59,7 +68,6 @@ class KMDInstitutionClient:
                 page.locator("a.btn[role='button']").click(timeout=3000)
             except:
                 self.logger.debug("Registerede ikke Fælleskommunal side, skipper videre")
-                pass  # Forsæt hvis den af en eller anden grund ikke dukker op
 
             # Vælg IDP og klik OK
             try:
@@ -67,8 +75,23 @@ class KMDInstitutionClient:
                 page.click("input[type='button'][value='OK']")
             except:
                 self.logger.debug("Kunne ikke vælge IDP og/eller klikke OK, skipper videre, muligvis allerede logget ind")
-                pass # Forsæt hvis IDP ikke dukker op (måske allerede logget ind)
             
+            #Indtast bruger
+            try:
+                page.wait_for_selector('input[name="loginfmt"]', timeout=5000)
+                page.fill('input[name="loginfmt"]', self._username)
+                page.click('input[type="submit"]')
+            except:
+                self.logger.debug("Kunne ikke indtaste bruger, skipper videre")
+            
+            #Indtast password
+            try:
+                page.wait_for_selector('input[name="passwd"]', timeout=5000)
+                page.fill('input[name="passwd"]', self._password)
+                page.click('input[type="submit"]')
+            except:
+                self.logger.debug("Kunne ikke indtaste password, skipper videre")
+
             # Wait for the final dashboard URL or handle login flow
             try:
                 dashboard_url = urljoin(self._base_url, "/Caseworker#/dashboard")
