@@ -4,14 +4,14 @@ class BrugerClient:
     def __init__(self, kmd_institution_client: KMDInstitutionClient) -> None:
         self.client = kmd_institution_client
         # Fetch user info during initialization
-        self._user_data = self.hent_egen_bruger()
+        self._bruger_data = self.hent_egen_bruger()
         
     @property
-    def user_id(self) -> str | None:
+    def brugerid(self) -> str | None:
         """Get the current user's ID."""
-        if self._user_data:
+        if self._bruger_data:
             # Try common ID field names
-            return (self._user_data["id"])
+            return (self._bruger_data["id"])
         return None
     
     

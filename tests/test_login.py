@@ -1,4 +1,3 @@
-import pytest
 from kmd_institution_client import KMDInstitutionClientManager
 
 
@@ -10,6 +9,6 @@ def test_cookies_login(kmd_institution_manager: KMDInstitutionClientManager):
     assert len(client.cookies) > 0
 
 def test_hent_brugerid_ved_login(kmd_institution_manager: KMDInstitutionClientManager):
-    brugerid = kmd_institution_manager.user_id
+    brugerid = kmd_institution_manager._brugerid
 
     assert brugerid is not None

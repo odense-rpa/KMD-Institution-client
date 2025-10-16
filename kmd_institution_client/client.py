@@ -7,6 +7,7 @@ from playwright.sync_api import sync_playwright, expect
 
 from kmd_institution_client.hooks import create_response_logging_hook
 
+
 class KMDInstitutionClient:
     @property
     def cookies(self) -> dict[str, str]:
@@ -20,7 +21,7 @@ class KMDInstitutionClient:
         # Clear existing cookies and set new ones in bulk
         self._client.cookies.clear()
         self._client.cookies.update(value)
-
+    
     def __init__(
             self, 
             idp: str,
@@ -50,6 +51,7 @@ class KMDInstitutionClient:
             },
         )
         self.login()
+        
 
     def login(self) -> None:
         with sync_playwright() as p:
