@@ -21,4 +21,9 @@ class KMDInstitutionClientManager:
     def bruger(self) -> BrugerClient:
         """Get the Bruger client for user-related operations."""
         return self._bruger
+    
+    @property
+    def user_id(self) -> str | None:
+        """Get the current user's ID."""
+        return self._bruger.user_id
 
