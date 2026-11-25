@@ -1,6 +1,6 @@
 [project]
 name = "kmd-institution-client"
-version = "0.1.0"
+version = "0.2.0"
 description = "Python-klient til KMD Institution: Playwright-login og httpx-kald til institutioner og indmeldelser."
 readme = "README.md"
 license = "MIT"
