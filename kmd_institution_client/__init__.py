@@ -1,9 +1,13 @@
 from .client import KMDInstitutionClient
-from .manager import KMDInstitutionClientManager
 from .functionality.bruger import BrugerClient
+from .functionality.indmeldelser import IndmeldelserClient
+from .functionality.institutioner_og_grupper import InstitutionerOgGrupperClient
+from .manager import KMDInstitutionClientManager
 
 __all__ = [
-    "KMDInstitutionClient", 
+    "BrugerClient",
+    "IndmeldelserClient",
+    "InstitutionerOgGrupperClient",
+    "KMDInstitutionClient",
     "KMDInstitutionClientManager",
-    "BrugerClient"
 ]

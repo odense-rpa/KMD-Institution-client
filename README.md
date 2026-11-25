@@ -25,18 +25,18 @@ playwright install chromium
 ## Brug
 
 ```python
-from kmd_institution_client import KMDInstitutionClient
-from kmd_institution_client.functionality.institutioner_og_grupper import InstitutionerOgGrupperClient
-from kmd_institution_client.functionality.indmeldelser import IndmeldelserClient
+from kmd_institution_client import KMDInstitutionClientManager
 
-client = KMDInstitutionClient(idp="odense", username="...", password="...")
-inst_client = InstitutionerOgGrupperClient(client, brugerid="...")
-
-institution = inst_client.hent_institution("Skolen på Søndersø")
-
-indmeldelser = IndmeldelserClient(client, brugerid="...")
-resultater = indmeldelser.find_indmeldelser(institution, udmeldelsesdato_fra="01-01-2025")
+with KMDInstitutionClientManager("odense", "...", "...") as kmd:
+    institution = kmd.institutioner_og_grupper.hent_institution("Skolen på Søndersø")
+    resultater = kmd.indmeldelser.find_indmeldelser(
+        institution, udmeldelsesdato_fra="01-01-2025"
+    )
 ```
+
+Browseren kører headless som standard. Brug `headless=False` til fejlsøgning.
+Manageren kan også oprettes fra miljøvariabler med `KMDInstitutionClientManager.fra_env()`
+(`KMD_IDP`, `KMD_USERNAME`, `KMD_PASSWORD`, `KMD_HEADLESS`, se `env.example`).
 
 ## Licens
 

@@ -1,90 +1,54 @@
-
-import json
 import logging
+from collections.abc import Callable
+
 import httpx
 
-from typing import Callable, Optional, Any
+# Path segments with 4+ digits are treated as identifiers (municipality IDs, CPR, institution IDs, ...)
+_MIN_CIFRE = 4
 
-def create_response_logging_hook(
-    logger: Optional[logging.Logger] = None,
-) -> Callable[[httpx.Response], None]:
+
+def _mask_segment(segment: str) -> str:
+    return "***" if sum(c.isdigit() for c in segment) >= _MIN_CIFRE else segment
+
+
+def mask_url(url: httpx.URL) -> str:
+    """Return the URL without query string, with identifier-like path segments masked."""
+    path = "/".join(_mask_segment(s) for s in url.path.split("/"))
+    return str(url.copy_with(query=None, path=path))
+
+
+def create_response_logging_hook(logger: logging.Logger) -> Callable[[httpx.Response], None]:
     """
-    Create response logging hook for this object that captures HTTP transactions.
+    Create an httpx response event hook that logs each HTTP transaction.
+
+    Only method, masked URL and status are logged. Request/response bodies and
+    query strings are left out, and numbers in the path are masked: they can
+    contain CPR numbers and other personal data about children and guardians.
 
     Args:
-        logger: Logger instance to use (defaults to module logger)
+        logger: Logger to write to.
 
     Returns:
-        Response hook function
+        A callable usable in ``httpx.Client(event_hooks={"response": [...]})``.
     """
-    if logger is None:
-        logger = logging.getLogger(__name__)
 
     def log_response(response: httpx.Response) -> None:
-        """Log complete HTTP transaction from response."""
         request = response.request
-        method = request.method
-        url = str(request.url)
-        status = response.status_code
-
-        # Extract request JSON if available
-        request_json = None
-        try:
-            if hasattr(request, "content") and request.content:
-                request_json = _parse_json_content(request.content)
-        except Exception:
-            # Request content not available or not readable
-            request_json = None
-
-        # Always extract response JSON (for debugging API responses)
-        response_json = None
-        try:
-            # Force read the response if it hasn't been read yet
-            if not hasattr(response, '_content'):
-                response.read()
-            response_json = _parse_json_content(response.text)
-        except Exception:
-            # Response content not available or not readable
-            response_json = None
-
-        # Build complete log entry
-        extra = {
-            "event_type": "http_transaction",
-            "http_method": method,
-            "http_url": url,
-            "http_status": status,
-            "request_json": request_json,
-            "response_json": response_json,
-            "is_error": response.is_error,
-        }
-
-        # Log with appropriate level
-        if response.is_error:
-            logger.error(f"HTTP {status}: {method} {url}", extra=extra)
-        else:
-            logger.info(f"HTTP {status}: {method} {url}", extra=extra)
+        is_error = response.is_error
+        url = mask_url(request.url)
+        logger.log(
+            logging.ERROR if is_error else logging.INFO,
+            "HTTP %s: %s %s",
+            response.status_code,
+            request.method,
+            url,
+            extra={
+                "event_type": "http_transaction",
+                "http_method": request.method,
+                "http_url": url,
+                "http_status": response.status_code,
+                "is_error": is_error,
+            },
+        )
 
     return log_response
-
-
-def _parse_json_content(content: Any) -> Optional[Any]:
-    """
-    Parse JSON content from request/response body.
-
-    Returns parsed JSON if valid, None otherwise.
-    """
-    if not content:
-        return None
-
-    # Convert bytes to string if needed
-    if isinstance(content, bytes):
-        try:
-            content = content.decode("utf-8")
-        except UnicodeDecodeError:
-            return None
-
-    # Parse JSON
-    try:
-        return json.loads(content)
-    except (json.JSONDecodeError, ValueError):
-        return None

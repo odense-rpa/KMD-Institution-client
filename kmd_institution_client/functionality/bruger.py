@@ -19,7 +19,4 @@ class BrugerClient:
         endpoint = "/api/municipalities/461"
         response = self.client.get(endpoint)
 
-        if response.status_code != 200:
-            raise ValueError(f"Kunne ikke hente egen bruger, fejlkode: {response.status_code}")
-
         return response.json()

@@ -1,12 +1,36 @@
-env.local
-.venv
-venv
-dist
-.env
-
-.pytest_cache/
+# Python
 __pycache__/
-*.pyc
-*.pyo
-*.pyd
+*.py[cod]
+*.egg-info/
+build/
+dist/
 *.db
+
+# Virtual environments / uv
+.venv/
+venv/
+.uv/
+
+# Test / type-check caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Secrets
+.env
+.env.*
+env.local
+!env.example
+
+# Playwright session state (contains login cookies)
+storage_state*.json
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/settings.json
+
+# Personal scratch
+mytest.py

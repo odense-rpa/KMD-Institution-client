@@ -12,10 +12,7 @@ class InstitutionerOgGrupperClient:
             
         endpoint = f"api/municipalities/{self.brugerid}/institutions/search/simple?"
         response = self.client.get(endpoint)
-        
-        if response.status_code != 200:
-            raise ValueError(f"Could not fetch institutions, status code: {response.status_code}")
-            
+
         return response.json()
     
     def hent_institution(self, institutionsnavn: str) -> Optional[dict]:

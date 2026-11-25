@@ -1,14 +1,28 @@
 [project]
-name = "kmd-kmd_institution_client"
+name = "kmd-institution-client"
 version = "0.1.0"
-description = "Add your description here"
+description = "Python-klient til KMD Institution: Playwright-login og httpx-kald til institutioner og indmeldelser."
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.13"
 dependencies = [
-    "authlib>=1.6.1",
     "httpx>=0.28.1",
     "playwright==1.54.0",
+]
+
+[build-system]
+requires = ["uv_build>=0.9.2,<0.10.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = ""
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
     "pytest>=8.4.1",
     "python-dotenv>=1.0.0",
-    "requests>=2.32.4",
+    "ruff>=0.15.11",
 ]
